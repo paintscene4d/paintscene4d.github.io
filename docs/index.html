@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="PaintScene4D: Consistent 4D Scene Generation from Text Prompts">
+  <meta name="keywords" content="GAURA, Radiance Fields, GenNeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PaintScene4D: Consistent 4D Scene Generation from Text Prompts</title>
+  
+  <!-- Global site tag (gtag.js) - Google Analytics
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script> -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+  <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+    </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">PaintScene4D: Consistent 4D Scene Generation from Text Prompts</h1>
+          <font size="+2" color="red">
+            Under Review at CVPR 2025
+          </font>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://vinayak-vg.github.io/">Vinayak Gupta</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://girish445ai.github.io/">Yunze Man</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://mukundvarmat.github.io/">Yuxiong Wang</a><sup>2</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Indian Institute of Technology, Madras</span>
+            <span class="author-block"><sup>2</sup>University of Illinois Urbana-Champaign</span>
+          </div>
+          <!-- <h4 class="subtitle has-text-centered">
+            * indicates equal contribution.
+          </h4> -->
+          
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="http://arxiv.org/abs/2407.08221"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="http://arxiv.org/abs/2407.08221"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+             
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/Vinayak-VG/PaintScene4D/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/teaser.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
+        free-viewpoint
+        portraits.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/steve.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/chair-tp.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-shiba">
+          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/shiba.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-fullbody">
+          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/fullbody.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-blueshirt">
+          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blueshirt.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-mask">
+          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/mask.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-coffee">
+          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/coffee.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-toby">
+          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/toby2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/teaser-cropped-1.png" alt="Teaser Figure" id="fig-teaser" style="width: 100%"/>
+      <h2 class="subtitle has-text-centered">
+        4D Text-to-Scene Generation: Unlike prior methods that restrict text-to-4D generation to object-level 
+        reconstruction or text-to-video models lacking explicit camera control, our approach reconstructs a 
+        full 4D scene from a single text prompt. This leads to realistic 4D scenes that can be viewed from 
+        different trajectories.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-cat-sandcastle">
+          <video poster="" id="cat-sandcastle" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/cat-sandcastle.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-deer-aura">
+          <video poster="" id="deer-aura" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/deer-aura.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-dog-search">
+          <video poster="" id="dog-search" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/dog-search.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-dragon-fire">
+          <video poster="" id="dragon-fire" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/dragon-fire.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-fox-cooking">
+          <video poster="" id="fox-cooking" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/fox-cooking.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-koala-cooking">
+          <video poster="" id="koala-cooking" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/koala-cooking.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-monkey-rubiks">
+          <video poster="" id="monkey-rubiks" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/monkey-rubiks.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-parrot-pottery">
+          <video poster="" id="parrot-pottery" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/parrot-pottery.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-rabbit-drone">
+          <video poster="" id="rabbit-drone" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/rabbit-drone.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-rabbit-sand">
+          <video poster="" id="rabbit-sand" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/rabbit-sand.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-squirrel-helicopter2">
+          <video poster="" id="squirrel-helicopter2" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos_ps4d/squirrel-helicopter2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Recent advances in diffusion models have revolutionized 2D and 3D content creation, yet generating 
+            photorealistic dynamic 4D scenes remains a significant challenge. Existing dynamic 4D generation 
+            methods typically rely on distilling knowledge from pre-trained 3D generative models, often fine-tuned 
+            on synthetic object datasets. Consequently, the resulting scenes tend to be object-centric and lack 
+            photorealism. While text-to-video models can generate more realistic scenes with motion, they often 
+            struggle with spatial understanding and provide limited control over camera viewpoints during rendering. 
+            To address these limitations, we present PaintScene4D, a novel text-to-4D scene generation framework 
+            that departs from conventional multi-view generative models in favor of a streamlined architecture 
+            that harnesses video generative models trained on diverse real-world datasets. Our method first generates 
+            a reference video using a video generation model, and then employs a strategic camera array selection for 
+            rendering. We apply a progressive warping and inpainting technique to ensure both spatial and temporal 
+            consistency across multiple viewpoints. Finally, we optimize multi-view images using a dynamic renderer, 
+            enabling flexible camera control based on user preferences. Our PaintScene4D produces realistic 4D scenes 
+            that can be viewed from arbitrary trajectories.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <!-- https://youtu.be/97RZkAOWscU -->
+          <iframe src="https://www.youtube.com/embed/97RZkAOWscU?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model arch. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">PaintScene4D-Model Architecture</h2>
+        <div class="w3-container" id="Paintscene4d-model">
+          <img src="./static/images/modelarch-new-cropped-1.png" alt="Model Architecture" id="fig-Gaura-architecture" style="width: 100%"/>
+          <h2 class="subtitle has-text-centered">
+            Method Overview: Our approach consists of three stages. First, we initialize the 4D scene 
+            using a diffusion prior to establish scene content and motion, estimate depth maps for each 
+            video frame, and initialize camera trajectory (extrinsics) and intrinsics for subsequent warping. 
+            In the second stage, we perform sequential warping and inpainting from the first timestamp. 
+            To ensure spatial and temporal coherence, our consistent inpainting module mitigates artifacts 
+            and aligns depth maps, preventing error accumulation. Finally, the generated view-time matrix is 
+            used to renders novel views along user-defined camera trajectories, allowing for explicit camera 
+            control. V0, V1 represent different view points. 
+          </h2>
+      </div>
+      </div>
+    </div> -->
+    <!--/ Model arch. -->
+  </div>
+</section>
+
+<!-- 
+    <section class="hero is-light is-small">
+      <div class="hero-body">
+        <h2 class="title is-3">Camera Motion Blur</h2>
+        <div class="container">
+          <div id="results-carousel" class="carousel results-carousel">
+            <div class="item item-blurgirl">
+              <video poster="" id="blurgirl" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-blurcozyroom">
+              <video poster="" id="blurcozyroom" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-blurdecoration">
+              <video poster="" id="blurdecoration" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-blurbasket">
+              <video poster="" id="blurbasket" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            
+            <div class="item item-blurpool">
+              <video poster="" id="blurpool" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-blurpuppet">
+              <video poster="" id="blurpuppet" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-blurstair">
+              <video poster="" id="blurstair" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="hero is-light is-small">
+      <div class="hero-body">
+        <h2 class="title is-3">Dehazing</h2>
+        <div class="container">
+          <div id="results-carousel" class="carousel results-carousel">
+            <div class="item item-defocuscoral">
+              <video poster="" id="defocuscoral" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocuscupcake">
+              <video poster="" id="defocuscupcake" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocusdaisy">
+              <video poster="" id="defocusdaisy" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocuscisco">
+              <video poster="" id="defocuscisco" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocusseal">
+              <video poster="" id="defocusseal" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocustanabata">
+              <video poster="" id="defocustanabata" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocustools">
+              <video poster="" id="defocustools" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocuswine">
+              <video poster="" id="defocuswine" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="hero is-light is-small">
+      <div class="hero-body">
+        <h2 class="title is-3">Low Light Enhancement</h2>
+        <div class="container">
+          <div id="results-carousel" class="carousel results-carousel">
+            <div class="item item-defocuscoral">
+              <video poster="" id="defocuscoral" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocuscupcake">
+              <video poster="" id="defocuscupcake" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocusdaisy">
+              <video poster="" id="defocusdaisy" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocuscisco">
+              <video poster="" id="defocuscisco" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocusseal">
+              <video poster="" id="defocusseal" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocustanabata">
+              <video poster="" id="defocustanabata" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocustools">
+              <video poster="" id="defocustools" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-defocuswine">
+              <video poster="" id="defocuswine" autoplay controls muted loop height="100%">
+                <source src="./static/videos/blurball.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    Comparison videos with other All-in-one Degradation methods
+     -->
+
+    <!-- <div class="w3-container" id="video-comparison">
+      <a href="#video-comparison"><h2><u>Comparison videos with other All-in-one Degradation methods</u></h2></a>
+
+      <h4>Play the videos in the fullscreen mode for the best view</h4>
+
+      <div>
+          <figure style="width: 100%">
+              <video id="video-comparison1" class="video-comparisons-dark-still2" muted controls>
+                  <source src="./static/videos/still2.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Dark</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison2" class="video-comparisons-defocus deblurring" muted controls>
+                  <source src="./static/videos/cupcake.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Defcous deblurring</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison3" class="video-comparisons-motion deblurring" muted controls>
+                  <source src="./static/videos/blurbasket.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Motion Deblurring</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison4" class="video-comparisons-re10k" muted controls>
+                  <source src="./static/videos/scen25_ppc.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Deraining</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison5" class="video-comparisons-re10k" muted controls>
+                  <source src="./static/videos/snow_video.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Desnowing</figcaption>
+          </figure>
+      </div>
+  </div> -->
+<!-- 
+  <section class="section">
+    
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Comparison videos with other All-in-one Degradation methods</h2>
+        <h4>Play the videos in the fullscreen mode for the best view</h4>
+        <div>
+          <figure style="width: 100%">
+              <video id="video-comparison1" class="video-comparisons-dark-still2" muted controls>
+                  <source src="./static/videos/still4.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Dark</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison2" class="video-comparisons-defocus deblurring" muted controls>
+                  <source src="./static/videos/caps2.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Defocus deblurring</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison3" class="video-comparisons-motion deblurring" muted controls>
+                  <source src="./static/videos/blurbasket.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Motion Deblurring</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison4" class="video-comparisons-re10k" muted controls>
+                  <source src="./static/videos/scene21_ppc.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Deraining</figcaption>
+          </figure>
+          <figure style="width: 100%">
+              <video id="video-comparison5" class="video-comparisons-re10k" muted controls>
+                  <source src="./static/videos/snow_video.mp4">
+                  Your browser does not support the video tag.
+              </video>
+              <figcaption class="caption">Desnowing</figcaption>
+          </figure>
+      </div>
+      </div>
+      </div>
+    </div>
+    
+
+    
+
+</section>
+ -->
+
+
+
+ 
+  <section class="section">
+    
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Gallery of Results</h2>
+          <div class="w3-container" id="Gaura-model">
+            <img src="./static/images/supp-gallery1-cropped-1.png" alt="results gallery" id="fig-gallery" style="width: 100%"/>
+          </div>
+          <div class="w3-container" id="Gaura-model">
+            <img src="./static/images/supp-gallery2-cropped-1.png" alt="results gallery" id="fig-gallery" style="width: 100%"/>
+            <h2 class="subtitle has-text-centered">
+              We present qualitative results of our text-to-4D generation framework, showcasing superior 
+              visual fidelity, consistent multi-view reconstructions, plausible scene compositions, and 
+              realistic dynamic motions. The horizontal axis represents the time axis and the vertical 
+              axis represents different view points. A comprehensive collection of video demonstrations 
+              is provided in the supplementary materials.
+            </h2>
+          </div>
+        </div>
+      </div>
+      
+      <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3">Explicit Camera Control</h2>
+            <div class="w3-container" id="Gaura-model">
+              <!-- <a href="#Gaura-model"><h2><u>GAURA - Model Architecture</u></h2></a> -->
+    
+              <img src="./static/images/exp-2-cropped-1.png" alt="results gallery" id="fig-gallery" style="width: 100%"/>
+              <h2 class="subtitle has-text-centered">
+                Camera Control: PaintScene4D demonstrates strong explicit camera control capabilities. 
+                Input text prompt: "A rabbit flying a drone in the middle of mountains." 
+                In contrast, to guide the T2V model, we append camera motion directives such as
+                "The camera tilts to the right" or "The camera moves upwards" to the text prompt. 
+                However, due to implicit handling of camera motion, T2V often fails to generate precise 
+                or controllable camera movements. Our approach, once trained, allows for flexible camera 
+                trajectories within the bounds of the input training cameras, achieving precise and 
+                repeatable control over camera movements for the same scene.
+              </h2>
+          </div>
+          </div>
+        </div>
+  </section>
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{gupta2024gaura,
+      title={PaintScene4D: Consistent 4D Scene Generation from Text Prompts},
+      author={Gupta, Vinayak and Man, Yunze and Wang, Yuxiong},
+      year={2024}
+      <!-- journal={arXiv preprint arXiv:2407.08221}, -->
+    }</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
