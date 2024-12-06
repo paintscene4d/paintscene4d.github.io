@@ -18,9 +18,9 @@
 
 ## News
 
-- [12/06/2024] 📋 Paper is currently under review. Code will be released upon acceptance.
+- [06/12/2024] 📋 Paper is currently under review. Code will be released upon acceptance.
 
-- [12/06/2024] 🎉 The paper appears on Arxiv.
+- [06/12/2024] 🎉 The paper appears on Arxiv.
 
 ## Citation
 
