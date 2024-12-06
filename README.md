@@ -1,4 +1,9 @@
 # PaintScene4D: Consistent 4D Scene Generation from Text Prompts
+[Vinayak Gupta](https://vinayak-vg.github.io/)<sup>1</sup>,
+[Yunze Man](https://yunzeman.github.io/)<sup>2</sup>,
+[Yu-Xiong Wang](https://yxw.cs.illinois.edu/)<sup>2</sup>,
+
+<sup>1 </sup>Indian Institute of Technology Madras, <sup>2 </sup>University of Illinois Urbana-Champaign
 
 [[`Project Page`](https://paintscene4d.github.io/)] [[`arXiv`](https://arxiv.org/abs/2412.04471)]
 
